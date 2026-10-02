@@ -1,0 +1,11 @@
+{
+  "name": "printer-agent",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test:health": "curl -s http://localhost:3333/health",
+    "test:print": "curl -s -X POST http://localhost:3333/test"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "port": 3333,
+  "host": "0.0.0.0",
+  "default_transport": "auto",
+  "bluetooth": {
+    "mac": "86:67:7A:0D:B7:9A",
+    "channel": 1
+  },
+  "usb": {
+    "device_path": "/dev/usb/lp0"
+  },
+  "serial": {
+    "port": "COM3",
+    "baudrate": 9600
+  }
+}
