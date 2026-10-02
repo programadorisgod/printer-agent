@@ -26,7 +26,8 @@ const transportManager = new TransportManager(config);
 function sendCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Allow-Headers', '*');
+  res.setHeader('Access-Control-Allow-Private-Network', 'true');
 }
 
 function sendJson(res, statusCode, data) {
@@ -49,7 +50,7 @@ const server = http.createServer(async (req, res) => {
 
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 
-  if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/health' || url.pathname === '/status')) {
+  if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/health' || url.pathname === '/status' || url.pathname === '/print')) {
     const active = transportManager.resolveTransport();
     sendJson(res, 200, {
       status: 'online',
@@ -58,6 +59,7 @@ const server = http.createServer(async (req, res) => {
       mode: 'label (estampitas TSPL)',
       active_transport: active.name,
       transports: transportManager.listTransports(),
+      message: url.pathname === '/print' ? 'Endpoint /print activo. Para imprimir, envía una petición POST con los datos del ticket.' : undefined,
       timestamp: new Date().toISOString()
     });
     return;
