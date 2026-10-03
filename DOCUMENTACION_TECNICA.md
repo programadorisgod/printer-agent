@@ -129,6 +129,19 @@ Durante la fase de integración y pruebas surgieron varios comportamientos que i
 
 ---
 
+### Desafío 6: En Windows, Node.js resolvía el puerto COM como archivo relativo (`ENOENT` / `UNKNOWN`)
+* **Síntoma:** Al imprimir en Windows, el agente arrojaba:
+  `[TransportManager] Fallo en Serial: ENOENT: no such file or directory, open 'C:\...\printer-agent\COM4'. Probando USB...`
+  y caía directamente al simulador en consola.
+* **Causa Raíz:**
+  1. En el subsistema de I/O de Node.js en Windows (`libuv`), llamar a `fs.openSync('COM4')` hace que Node.js interprete el nombre como una ruta relativa en el directorio del proyecto (`...\printer-agent\COM4`).
+  2. Si se intentaba forzar la ruta NT `\\.\COM4`, `libuv` rechazaba el descriptor con `UNKNOWN: unknown error` al no ser un archivo de disco tradicional.
+* **Solución (Canal Binario Nativo de Windows & Autodetección Universal):**
+  1. **Tubería Binaria Nativa:** Se implementó en Windows el volcado a búfer temporal y transmisión directa mediante el comando nativo `cmd.exe /c "copy /b <tempfile> <COMx>"`. Este comando transfiere el flujo de bytes crudo directamente al driver del puerto serie sin pasar por las restricciones de `libuv`.
+  2. **Autodetección Plug & Play:** Se implementó en `serialTransport.js` la lectura ultrarrápida del registro de Windows (`HKLM\SYSTEM\CurrentControlSet\Enum\BTHENUM`), identificando automáticamente el puerto saliente (asociado a la MAC de la impresora o el primer dispositivo Bluetooth SPP activo). De esta forma, el agente funciona de forma inmediata en cualquier PC sin necesidad de configurar números de puerto a mano.
+
+---
+
 ## 4. Estructura del Proyecto y Código Creado
 
 ```
@@ -187,16 +200,15 @@ practice/
 
 ---
 
-### En Windows (Paso a Paso)
+### En Windows (Paso a Paso - 100% Plug & Play)
 
-1. Ir a **Configuración > Dispositivos > Bluetooth**, encender el Bluetooth y buscar el dispositivo `P1_B79A` o `PT-210`.
-2. Ingresar el PIN: `0000` (o `1234`).
-3. Ir a **Más opciones de Bluetooth > pestaña Puertos COM** y anotar el puerto COM saliente asignado (ej. `COM3`).
-4. En `config.json`, asegurar que `"port": "COM3"`.
-5. Ejecutar haciendo doble clic en `run.bat` o desde CMD:
+1. Ir a **Configuración > Dispositivos > Bluetooth**, encender el Bluetooth y emparejar el dispositivo `P1_B79A` o `PT-210` con PIN: `0000` (o `1234`).
+2. En `config.json`, el puerto está configurado en `"auto"` por defecto. El agente detectará automáticamente el puerto COM saliente vinculado a la impresora en cualquier equipo con Windows.
+3. Ejecutar haciendo doble clic en `run.bat` o desde la terminal:
    ```cmd
    npm start
    ```
+   *(El agente mostrará en consola: `🔍 Puerto Bluetooth autodetectado en Windows: COMx`)*.
 
 ---
 

@@ -28,7 +28,7 @@ Edita `config.json` para ajustar los parámetros de tu impresora:
     "device_path": "/dev/usb/lp0"
   },
   "serial": {
-    "port": "COM3",
+    "port": "auto",
     "baudrate": 9600
   }
 }
@@ -44,34 +44,33 @@ Edita `config.json` para ajustar los parámetros de tu impresora:
      bluetoothctl pair 86:67:7A:0D:B7:9A
      bluetoothctl trust 86:67:7A:0D:B7:9A
      ```
-   - ¡Listo! El agente se conecta automáticamente mediante socket RFCOMM nativo sin necesidad de comandos antiguos ni privilegios root.
+   - Ejecuta `./bind-printer.sh` para crear `/dev/rfcomm0`.
 
 2. **USB**:
    - Conecta el cable USB. Aparecerá en `/dev/usb/lp0`. Asegúrate de pertenecer al grupo `lp` (`sudo usermod -aG lp $USER`).
 
 3. **Ejecutar**:
    ```bash
-   ./run.sh
-   # O también:
-   python3 server.py
+   npm start
+   # O directamente:
+   node server.js
    ```
 
 ---
 
-## Uso en Windows
+## Uso en Windows (100% Plug & Play)
 
 1. **Bluetooth**:
-   - Ve a **Configuración > Dispositivos > Bluetooth** y agrega la impresora `P1_B79A` / `PT-210` (PIN habitual: `0000` o `1234`).
-   - Ve a **Más opciones de Bluetooth > Puertos COM** y consulta el puerto COM saliente asignado (por ejemplo, `COM3` o `COM4`).
-   - En `config.json`, configura `"port": "COM3"` en `"serial"`.
+   - Ve a **Configuración > Dispositivos > Bluetooth** y agrega la impresora `P1_B79A` / `PT-210` (PIN: `0000` o `1234`).
+   - ¡Listo! En `config.json`, `"port": "auto"` detecta automáticamente el puerto COM saliente vinculado a la impresora en cualquier equipo con Windows.
 
 2. **USB**:
    - Al conectar por USB en Windows, se instala como puerto de impresora virtual o COM.
 
 3. **Ejecutar**:
-   - Doble clic en `run.bat` o:
+   - Doble clic en `run.bat` o desde la terminal:
      ```cmd
-     python server.py
+     npm start
      ```
 
 ---

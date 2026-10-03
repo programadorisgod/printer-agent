@@ -10,7 +10,7 @@
     "device_path": "/dev/usb/lp0"
   },
   "serial": {
-    "port": "COM3",
+    "port": "auto",
     "baudrate": 9600
   }
 }
